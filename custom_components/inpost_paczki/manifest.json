@@ -1,0 +1,13 @@
+{
+  "domain": "inpost_paczki",
+  "name": "InPost Paczki",
+  "codeowners": ["@Eales"],
+  "config_flow": true,
+  "dependencies": [],
+  "documentation": "https://github.com/Eales/inpost-paczki",
+  "integration_type": "service",
+  "iot_class": "cloud_polling",
+  "issue_tracker": "https://github.com/Eales/inpost-paczki/issues",
+  "requirements": [],
+  "version": "0.1.0"
+}

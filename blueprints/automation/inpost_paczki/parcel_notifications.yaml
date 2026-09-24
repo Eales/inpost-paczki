@@ -1,0 +1,120 @@
+blueprint:
+  name: InPost - powiadomienia o paczkach
+  description: >-
+    Wysyła powiadomienie na telefon (aplikacja Home Assistant), gdy paczka InPost
+    czeka do odbioru lub zmienia status, oraz przypomina przed upływem terminu
+    odbioru.
+  domain: automation
+  source_url: https://github.com/Eales/inpost-paczki/blob/main/blueprints/automation/inpost_paczki/parcel_notifications.yaml
+  input:
+    parcel_event:
+      name: Encja zdarzenia „Paczka”
+      selector:
+        entity:
+          filter:
+            - integration: inpost_paczki
+              domain: event
+    pickup_calendar:
+      name: Kalendarz „Odbiory paczek”
+      selector:
+        entity:
+          filter:
+            - integration: inpost_paczki
+              domain: calendar
+    notify_device:
+      name: Telefon
+      description: Urządzenie z aplikacją Home Assistant, które dostanie powiadomienie.
+      selector:
+        device:
+          filter:
+            - integration: mobile_app
+    event_types:
+      name: O czym powiadamiać
+      default: [ready_to_pickup]
+      selector:
+        select:
+          multiple: true
+          options:
+            - label: Paczka czeka do odbioru
+              value: ready_to_pickup
+            - label: Nowa paczka
+              value: new_parcel
+            - label: Paczka odebrana
+              value: delivered
+            - label: Każda inna zmiana statusu
+              value: status_changed
+    reminder_offset:
+      name: Przypomnienie przed końcem terminu odbioru
+      description: >-
+        Ile przed upływem terminu przypomnieć o nieodebranej paczce, jako ujemny
+        czas GG:MM:SS (np. -06:00:00 to sześć godzin wcześniej).
+      default: "-06:00:00"
+      selector:
+        text:
+
+mode: queued
+max: 10
+
+variables:
+  event_types: !input event_types
+
+triggers:
+  - trigger: state
+    entity_id: !input parcel_event
+    id: parcel
+  - trigger: calendar
+    entity_id: !input pickup_calendar
+    event: end
+    offset: !input reminder_offset
+    id: reminder
+
+conditions:
+  - condition: or
+    conditions:
+      - condition: and
+        conditions:
+          - condition: trigger
+            id: parcel
+          - condition: template
+            value_template: >-
+              {# After a restart the last event is restored, coming from nothing or 'unavailable'. #}
+              {{ trigger.from_state is not none and trigger.to_state is not none
+                 and trigger.from_state.state != 'unavailable'
+                 and trigger.to_state.state not in ['unknown', 'unavailable']
+                 and trigger.to_state.attributes.event_type in event_types }}
+      - condition: trigger
+        id: reminder
+
+actions:
+  - choose:
+      - conditions:
+          - condition: trigger
+            id: parcel
+        sequence:
+          - variables:
+              a: "{{ trigger.to_state.attributes }}"
+              titles:
+                ready_to_pickup: "📦 Paczka czeka do odbioru"
+                new_parcel: "📦 Nowa paczka InPost"
+                delivered: "✅ Paczka odebrana"
+                status_changed: "🚚 Paczka InPost"
+          - device_id: !input notify_device
+            domain: mobile_app
+            type: notify
+            title: "{{ titles.get(a.event_type, 'InPost') }}"
+            message: >-
+              {{ a.sender or 'Nieznany nadawca' }}: {{ a.status_title or a.status }}
+              {%- if a.event_type == 'ready_to_pickup' and a.point_name %}
+              — {{ a.point_name }}{% if a.point_address %}, {{ a.point_address }}{% endif %}
+              {%- if a.expiry_date %}. Odbierz do {{ as_timestamp(a.expiry_date) | timestamp_custom('%d.%m %H:%M') }}{% endif %}
+              {%- if a.open_code %}. Kod: {{ a.open_code }}{% endif %}
+              {%- endif %}
+    default:
+      - device_id: !input notify_device
+        domain: mobile_app
+        type: notify
+        title: "⏰ Nieodebrana paczka"
+        message: >-
+          {{ trigger.calendar_event.summary }} — termin mija
+          {{ as_timestamp(trigger.calendar_event.end) | timestamp_custom('%d.%m o %H:%M') }}.
+          {{ trigger.calendar_event.location }}

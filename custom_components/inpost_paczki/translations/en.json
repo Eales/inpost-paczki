@@ -1,0 +1,82 @@
+{
+  "config": {
+    "step": {
+      "user": {
+        "title": "InPost",
+        "description": "1. Open [the InPost login page]({login_url}) in your browser and log in exactly as in the app (phone number, SMS code).\n2. You end up on a blank or error page whose address starts with `https://account.inpost-group.com/callback?code=`. That is expected.\n3. Copy the whole address from the address bar and paste it below. The code is valid for a short time only.\n\nIf the page lets you in without asking for anything, you are already logged in in this browser: open the link in a private window.",
+        "data": { "callback_url": "Address of the page after login" }
+      },
+      "reauth_confirm": {
+        "title": "Log in to InPost again",
+        "description": "The InPost session has expired. Open [the InPost login page]({login_url}), log in and paste the address of the page you end up on (`https://account.inpost-group.com/callback?code=...`).",
+        "data": { "callback_url": "Address of the page after login" }
+      }
+    },
+    "error": {
+      "invalid_callback": "This address has no login code, or it comes from another login attempt. Paste the full address of the page shown after logging in via the link above.",
+      "invalid_auth": "InPost rejected the code. It may have expired: log in via the link again and paste the new address right away.",
+      "cannot_connect": "Cannot connect to the InPost API."
+    },
+    "abort": {
+      "already_configured": "This InPost account is already configured.",
+      "reauth_successful": "Logged in again.",
+      "wrong_account": "You logged in to a different InPost account than the one being re-authenticated."
+    }
+  },
+  "options": {
+    "step": {
+      "init": {
+        "title": "Options",
+        "description": "How often to check InPost, and whether to expose the pickup code. The code opens the locker, and attributes are stored in the Home Assistant database.",
+        "data": {
+          "scan_interval": "Polling interval",
+          "show_codes": "Expose pickup codes"
+        }
+      }
+    }
+  },
+  "entity": {
+    "sensor": {
+      "ready": {
+        "name": "Parcels to collect",
+        "state_attributes": { "parcels": { "name": "Parcels" } }
+      },
+      "on_the_way": {
+        "name": "Parcels on the way",
+        "state_attributes": { "parcels": { "name": "Parcels" } }
+      },
+      "pickup_deadline": {
+        "name": "Pickup deadline"
+      }
+    },
+    "binary_sensor": {
+      "parcel_waiting": { "name": "Parcel waiting" }
+    },
+    "calendar": {
+      "pickups": { "name": "Parcel pickups" }
+    },
+    "event": {
+      "parcel": {
+        "name": "Parcel",
+        "state_attributes": {
+          "event_type": {
+            "state": {
+              "new_parcel": "New parcel",
+              "status_changed": "Status changed",
+              "ready_to_pickup": "Ready to collect",
+              "delivered": "Collected"
+            }
+          }
+        }
+      },
+      "notification": {
+        "name": "Notification",
+        "state_attributes": {
+          "event_type": {
+            "state": { "notification": "InPost notification" }
+          }
+        }
+      }
+    }
+  }
+}

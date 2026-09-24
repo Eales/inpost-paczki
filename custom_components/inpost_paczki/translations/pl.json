@@ -1,0 +1,82 @@
+{
+  "config": {
+    "step": {
+      "user": {
+        "title": "InPost",
+        "description": "1. Otwórz w przeglądarce [stronę logowania InPost]({login_url}) i zaloguj się tak jak w aplikacji (numer telefonu, kod SMS).\n2. Po zalogowaniu zobaczysz pustą stronę albo stronę z błędem, a jej adres zaczyna się od `https://account.inpost-group.com/callback?code=`. Tak ma być.\n3. Skopiuj cały adres z paska przeglądarki i wklej go poniżej. Kod jest ważny tylko przez chwilę.\n\nJeśli strona wpuści Cię bez pytania o dane, jesteś już zalogowany w tej przeglądarce. Otwórz wtedy link w oknie prywatnym.",
+        "data": { "callback_url": "Adres strony po zalogowaniu" }
+      },
+      "reauth_confirm": {
+        "title": "Zaloguj się ponownie do InPost",
+        "description": "Sesja InPost wygasła. Otwórz [stronę logowania InPost]({login_url}), zaloguj się i wklej adres strony, na którą trafisz (`https://account.inpost-group.com/callback?code=...`).",
+        "data": { "callback_url": "Adres strony po zalogowaniu" }
+      }
+    },
+    "error": {
+      "invalid_callback": "W tym adresie nie ma kodu logowania albo pochodzi on z innej próby logowania. Wklej pełny adres strony, którą zobaczysz po zalogowaniu przez link powyżej.",
+      "invalid_auth": "InPost odrzucił kod. Mógł wygasnąć. Zaloguj się ponownie przez link i od razu wklej nowy adres.",
+      "cannot_connect": "Nie można połączyć się z API InPost."
+    },
+    "abort": {
+      "already_configured": "To konto InPost jest już skonfigurowane.",
+      "reauth_successful": "Zalogowano ponownie.",
+      "wrong_account": "Zalogowano do innego konta InPost niż to, które wymaga ponownego logowania."
+    }
+  },
+  "options": {
+    "step": {
+      "init": {
+        "title": "Opcje",
+        "description": "Jak często sprawdzać InPost i czy pokazywać kod odbioru. Kod otwiera skrytkę, a atrybuty trafiają do bazy Home Assistanta.",
+        "data": {
+          "scan_interval": "Częstotliwość odpytywania",
+          "show_codes": "Pokazuj kody odbioru"
+        }
+      }
+    }
+  },
+  "entity": {
+    "sensor": {
+      "ready": {
+        "name": "Paczki do odbioru",
+        "state_attributes": { "parcels": { "name": "Paczki" } }
+      },
+      "on_the_way": {
+        "name": "Paczki w drodze",
+        "state_attributes": { "parcels": { "name": "Paczki" } }
+      },
+      "pickup_deadline": {
+        "name": "Termin odbioru"
+      }
+    },
+    "binary_sensor": {
+      "parcel_waiting": { "name": "Paczka czeka" }
+    },
+    "calendar": {
+      "pickups": { "name": "Odbiory paczek" }
+    },
+    "event": {
+      "parcel": {
+        "name": "Paczka",
+        "state_attributes": {
+          "event_type": {
+            "state": {
+              "new_parcel": "Nowa paczka",
+              "status_changed": "Zmiana statusu",
+              "ready_to_pickup": "Gotowa do odbioru",
+              "delivered": "Odebrana"
+            }
+          }
+        }
+      },
+      "notification": {
+        "name": "Powiadomienie",
+        "state_attributes": {
+          "event_type": {
+            "state": { "notification": "Powiadomienie InPost" }
+          }
+        }
+      }
+    }
+  }
+}
