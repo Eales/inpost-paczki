@@ -44,6 +44,7 @@ from .const import (
     DOMAIN,
     MAX_SCAN_INTERVAL,
     MIN_SCAN_INTERVAL,
+    OAUTH_REDIRECT_URI,
 )
 
 _LOGGER = logging.getLogger(__name__)
@@ -115,7 +116,10 @@ class InPostConfigFlow(ConfigFlow, domain=DOMAIN):
         return self.async_show_form(
             step_id=step_id,
             data_schema=vol.Schema({vol.Required(CONF_CALLBACK_URL): TextSelector()}),
-            description_placeholders={"login_url": self._login.url},
+            description_placeholders={
+                "login_url": self._login.url,
+                "callback_url": f"{OAUTH_REDIRECT_URI}?code=",
+            },
             errors=errors,
         )
 

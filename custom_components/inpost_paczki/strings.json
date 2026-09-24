@@ -3,12 +3,12 @@
     "step": {
       "user": {
         "title": "InPost",
-        "description": "1. Open [the InPost login page]({login_url}) in your browser and log in exactly as in the app (phone number, SMS code).\n2. You end up on a blank or error page whose address starts with `https://account.inpost-group.com/callback?code=`. That is expected.\n3. Copy the whole address from the address bar and paste it below. The code is valid for a short time only.\n\nIf the page lets you in without asking for anything, you are already logged in in this browser: open the link in a private window.",
+        "description": "1. Open [the InPost login page]({login_url}) in your browser and log in exactly as in the app (phone number, SMS code).\n2. You end up on a blank or error page whose address starts with `{callback_url}`. That is expected.\n3. Copy the whole address from the address bar and paste it below. The code is valid for a short time only.\n\nIf the page lets you in without asking for anything, you are already logged in in this browser: open the link in a private window.",
         "data": { "callback_url": "Address of the page after login" }
       },
       "reauth_confirm": {
         "title": "Log in to InPost again",
-        "description": "The InPost session has expired. Open [the InPost login page]({login_url}), log in and paste the address of the page you end up on (`https://account.inpost-group.com/callback?code=...`).",
+        "description": "The InPost session has expired. Open [the InPost login page]({login_url}), log in and paste the address of the page you end up on (`{callback_url}...`).",
         "data": { "callback_url": "Address of the page after login" }
       }
     },
